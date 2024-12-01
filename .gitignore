@@ -102,5 +102,3 @@ data/
 gaze_plot.pang
 gaze_time_analysis.csv
 
-models/
-*.png
