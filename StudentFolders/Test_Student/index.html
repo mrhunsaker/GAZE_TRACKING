@@ -1,0 +1,21 @@
+</head>
+<body>
+    <div id="instruction">
+        <p>Look at the object that appears in the center</p>
+        <p>Then find that object among the three that appear and look at it</p>
+        <p>Press any key to start the experiment.</p>
+    </div>
+    <div id="test-container"></div>
+
+    <!--Load dependencies-->
+    <script src="webgazer.js"></script>
+    <script src="localforage.min.js"></script>
+    
+    <!--Load your module-->
+    <script type="module">
+        import { initializeExperiment } from './trialmanager.js';
+        
+        document.addEventListener("DOMContentLoaded", () => {
+            initializeExperiment();
+        });
+    </script>
