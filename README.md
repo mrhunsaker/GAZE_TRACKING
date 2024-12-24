@@ -1,8 +1,8 @@
 # CONTENTS
 
-- [Gaze Tracking in an Educational Setting](# Gaze Tracking for use in an Educational Setting)
-- [Entry TUI](# Student Page Launch Interface)
-- [Contributing](# Contributing)
+-   [Gaze Tracking in an Educational Setting](# Gaze Tracking for use in an Educational Setting)
+-   [Entry TUI](# Student Page Launch Interface)
+-   [Contributing](# Contributing)
 
 # Gaze Tracking for use in an Educational Setting
 
@@ -24,13 +24,13 @@ The experiment collects and saves gaze data and trial information for further an
 
 ## Features
 
-- **Eye Tracking**: Uses **WebGazer.js** for real-time gaze tracking.
-- **Calibration**: Ensures accurate gaze data by requiring participants to click on calibration points.
-- **Custom Trials**: Supports two trial types:
-  - **Trial 1**: One target object and two identical distractor objects.
-  - **Trial 2**: One target object and two unique distractor objects.
-- **Data Export**: Automatically saves data as a JSON file after the experiment.
-- **Responsive Design**: Adapts to different screen sizes.
+-   **Eye Tracking**: Uses **WebGazer.js** for real-time gaze tracking.
+-   **Calibration**: Ensures accurate gaze data by requiring participants to click on calibration points.
+-   **Custom Trials**: Supports two trial types:
+    -   **Trial 1**: One target object and two identical distractor objects.
+    -   **Trial 2**: One target object and two unique distractor objects.
+-   **Data Export**: Automatically saves data as a JSON file after the experiment.
+-   **Responsive Design**: Adapts to different screen sizes.
 
 ---
 
@@ -56,11 +56,11 @@ The experiment collects and saves gaze data and trial information for further an
 
 ### File Structure
 
-- **index.html**: Main HTML file containing the experiment structure.
-- **webgazer.js**: Eye-tracking library for gaze data collection.
-- **localforage.min.js**: Library for browser-based storage.
-- **/models/**: Folder containing object images used in the trials.
-- **README.md**: This file.
+-   **index.html**: Main HTML file containing the experiment structure.
+-   **webgazer.js**: Eye-tracking library for gaze data collection.
+-   **localforage.min.js**: Library for browser-based storage.
+-   **/models/**: Folder containing object images used in the trials.
+-   **README.md**: This file.
 
 ---
 
@@ -70,9 +70,9 @@ The experiment collects and saves gaze data and trial information for further an
 
 Central class controlling the experiment flow.
 
-- **Calibration Phase**: Handles the green-dot calibration process.
-- **Trial Execution**: Displays objects, records gaze data, and saves results.
-- **Data Management**: Formats and downloads experimental data as a JSON file.
+-   **Calibration Phase**: Handles the green-dot calibration process.
+-   **Trial Execution**: Displays objects, records gaze data, and saves results.
+-   **Data Management**: Formats and downloads experimental data as a JSON file.
 
 #### `setupImages()`
 
@@ -82,8 +82,8 @@ Preloads object images for smooth rendering during trials.
 
 Runs individual trials based on the type:
 
-- **Type 1**: Target + two identical distractors.
-- **Type 2**: Target + two unique distractors.
+-   **Type 1**: Target + two identical distractors.
+-   **Type 2**: Target + two unique distractors.
 
 #### `startCalibrationPhase()`
 
@@ -106,6 +106,7 @@ Initializes the **WebGazer** library for eye tracking and sets configuration opt
 
     - Clone the repository.
     - Place the files on a local server (e.g., npm `http-server` set to use SSL).
+
         - Create a signed certificate using OpenSSL
 
         ```bash
@@ -151,7 +152,7 @@ Initializes the **WebGazer** library for eye tracking and sets configuration opt
 
 To add or adjust trial types:
 
-- Edit the `runTrial()` function in the script.
+-   Edit the `runTrial()` function in the script.
 
 ### Change Calibration Points
 
@@ -159,7 +160,7 @@ Modify the `CALIBRATION_POINTS` variable in the `TrialManager` class to adjust t
 
 ### Add More Images
 
-Add images to the `/models/` directory and ensure their names follow the format `objectXXX.png`.
+Add images to the `/models/` directory and ensure their names follow the format `object%3d.png` (_e.g._, object001, object402).
 
 ---
 
@@ -171,152 +172,208 @@ This experiment code is open source and available for modification. Attribution 
 
 ## Acknowledgments
 
-- **WebGazer.js** for providing the foundational eye-tracking library.
-- Experiment design inspired by object recognition and gaze-tracking research.
+-   **WebGazer.js** for providing the foundational eye-tracking library.
+-   Experiment design inspired by object recognition and gaze-tracking research.
+-   **localforage** for browser-based data storage.
+-   **OpenSSL** for generating SSL certificates.
+-   The open-source community for sharing knowledge and tools.
 
 # Student Page Launch Interface
 
-This script provides a user-friendly TUI (Text User Interface) to initialize and launch a local web server for student-specific project pages using **http-server** and **Chromium**. It is designed for a collaborative environment where each student has a dedicated directory containing their project files.
+A Text User Interface (TUI) script for launching student web pages using a secure local server and Chromium browser. This tool is designed to simplify the process of viewing student web projects in a controlled environment.
 
----
+## Prerequisites
 
-## Features
+Before using this script, ensure you have the following installed:
 
-- **Colorblind-Friendly Design**: Uses a combination of bright cyan and orange for high-contrast visuals.
-- **Student Directory Selection**: Displays a menu of predefined student names for easy navigation.
-- **Secure Server**: Starts an HTTPS server using `http-server` with custom certificate files.
-- **Automatic Browser Launch**: Opens the student's project page in Chromium after the server starts.
-- **Error Handling**: Validates directories, required files, and program dependencies.
+1. **Node.js and npm**
 
----
+    - Required for running http-server (One can use python's http.server as well, but since I was already using javascript, I decided to use http-server from npm just to keep to one laguage)
+    - Installation varies by operating system
+    - Visit [Node.js website](https://nodejs.org/) for installation instructions
 
-## How It Works
-
-### Workflow
-
-1. **Launch the Script**:
-    - Run the script to initialize the TUI interface.
-2. **Select a Student**:
-    - Pick a student from the list of available options.
-3. **Validate Environment**:
-    - The script checks for:
-        - Required directories and files (`cert.pem`, `key.pem`, and `index.html`).
-        - Installed programs (`http-server` and `Chromium`).
-4. **Start Server**:
-    - A secure server is started using `http-server` with HTTPS on port `8080`.
-5. **Open Browser**:
-    - Chromium is launched to display the student's project page.
-6. **Exit and Cleanup**:
-    - Use `Ctrl+C` to stop the server.
-
----
-
-## Requirements
-
-### Programs
-
-- **http-server**: Node.js-based static web server.
-  - Install via `npm install -g http-server`.
-- **Chromium**: Modern browser required for launching project pages.
-  - Install via your system's package manager (e.g., `apt install chromium` for Ubuntu).
-
-### Files
-
-- **cert.pem** and **key.pem**: SSL certificate and private key for HTTPS.
-- **Student Folders**: A directory structure containing each student’s project files, including `index.html`.
-
----
+2. **http-server**
+   It is best to avoid using the global `-g` flag when installing npm packages. Instead, install http-server locally in the script directory:
+    ```bash
+    npm install  http-server
+    ```
+3. **open-ssl**
+    - Required for generating SSL certificates
+    - Installation varies by operating system
+    - For Debian/Ubuntu:
+    ```bash
+    sudo apt install openssl
+    ```
+    - For Fedora:
+    ```bash
+    sudo dnf install openssl
+    ```
+    - For Arch Linux:
+    ```bash
+    sudo pacman -S openssl
+    ```
+4. **Chromium Browser**
+    - For Debian/Ubuntu:
+        ```bash
+        sudo apt install chromium-browser
+        ```
+    - For Fedora:
+        ```bash
+        sudo dnf install chromium
+        ```
+    - For Arch Linux:
+        ```bash
+        sudo pacman -S chromium
+        ```
 
 ## Installation
 
-1. **Clone or Copy the Script**:
+1. Clone or download the script to your local machine
 
-    - Save the script as `launch_student_page.sh` or a similar name.
+2. Make the script executable:
+    ```bash
+    chmod +x runexperiment.sh
+    ```
 
-2. **Ensure Prerequisites**:
+## Directory Structure
 
-    - Install `http-server` and `Chromium`.
-    - Place `cert.pem` and `key.pem` in the script directory.
+The script expects the following directory structure:
 
-3. **Organize Directories**:
-    - Set up a base directory (`./StudentFolders` by default) with subdirectories for each student (e.g., `./StudentFolders/TJGu`).
+```bash
+GAZE_ANALYSIS/					# Parent Directory
+├── jsonOutput.json
+├── LICENSE
+├── Plotting_Analysis/  		# Analysis and plotting scripts
+│   ├── AnalysisPlotting.py
+│   └── data
+│       ├── Student1Data_YYYY-MM-DD-hh-mm-ss_data.json
+│       ├── Student2Data_YYYY-MM-DD-hh-mm-ss_data.json
+│       ├── ...
+│       └── ...
+├── README.md	# This README.md file
+├── runexperiment.sh			# Script for launching student pages
+├── StudentFolders/				# Base Directory
+│   ├── Student1/
+│   │   ├── index.html
+│   │   ├── models
+│   │   │   ├── object001.png
+│   │   │   ├── object002.png
+│   │   │   ├──  ...
+│   │   │   └── object_n.png
+│   ├── Student2/
+│   │   ├── index.html
+│   │   ├── models
+│   │   │   ├── object001.png
+│   │   │   ├── object002.png
+│   │   │   ├──  ...
+│   │   │   └── object_n.png
+│   ├── Student_n/
+│   │   ├── index.html
+│   │   ├── models
+│   │   │   ├── object001.png
+│   │   │   ├── object002.png
+│   │   │   ├──  ...
+│   │   │   └── object_n.png
+│   ├── webgazer.js
+│   ├── localforage.min.js
+│   ├── localforage.js
+│   └── webgazer.js.map
+```
 
----
+To create the required directory structure:
+
+```bash
+# Create student directories
+for i in {01..05}; do
+  mkdir -p "Student$i"
+  touch "Student$i/index.html"
+done
+```
+
+## SSL Certificate Setup
+
+Generate self-signed certificates for HTTPS:
+
+```bash
+openssl req -newkey rsa:2048 -new -nodes -x509 -days 3650 -keyout key.pem -out cert.pem
+```
 
 ## Usage
 
-1. **Run the Script**:
+1. Navigate to the directory containing the script:
 
     ```bash
-    ./launch_student_page.sh
+    cd /path/to/script/directory
     ```
 
-2. **Follow Prompts**:
+2. Run the script:
 
-    - Specify the base directory or press `Enter` to use the default `./StudentFolders`.
-    - Select a student from the displayed menu.
+    ```bash
+    bash ./runexperiment.sh
+    ```
 
-3. **View Project**:
-    - The script starts a secure server and opens the project in Chromium.
-    - Press `Ctrl+C` to stop the server.
+3. Follow the prompts:
 
----
+    - Enter the base directory path (or press Enter for current directory)
+    - Select a student number from the menu
+    - The script will:
+        - Start a secure http-server
+        - Launch Chromium in incognito mode
+        - Navigate to the student's page
 
-## Customization
+4. To stop the server and close the script:
+    - Press `Ctrl+C` in the terminal
 
-### Modify Student List
+## Features
 
-Update the `STUDENTS` array in the script to include or remove names:
-
-```bash
-declare -a STUDENTS=(
-    "StudentA"
-    "StudentB"
-    ...
-    "StudentN"
-)
-```
-
-### Change Base Directory
-
-Modify the `default_base_dir` variable to set a different default base directory:
-
-```bash
-default_base_dir="./NewBaseDirectory"
-```
-
-### Update Port
-
-Change the `port` variable in the `start_server_and_browser` function:
-
-```bash
-local port=9090
-```
-
----
+-   Colorblind-friendly TUI
+-   Secure HTTPS server
+-   Automatic browser launch
+-   Input validation
+-   Easy student selection
+-   Clean process management
 
 ## Troubleshooting
 
-### Common Errors
+1. **"Error: http-server is not installed"**
 
-- **Directory Not Found**:
+    - Run `npm install http-server`
+    - Ensure npm is installed and in your PATH
 
-  - Ensure the base directory and student folders exist.
-  - Verify file permissions.
+2. **"Error: Chromium is not installed"**
 
-- **Missing Files**:
+    - Install Chromium using your system's package manager
+    - Ensure the browser is in your PATH
 
-  - Ensure `cert.pem` and `key.pem` are in the base directory.
-  - Ensure `index.html` exists in the student’s folder.
+3. **"Error: Certificate files not found"**
 
-- **Programs Not Found**:
-  - Install `http-server` and `Chromium` using the provided instructions.
+    - Generate SSL certificates using the command in the SSL Certificate Setup section
+    - Ensure cert.pem and key.pem are in the base directory
 
----
+4. **"Error: No directory found for student"**
+
+    - Check that the student directories are created with correct names
+    - Ensure you have proper permissions to access the directories
+
+5. **"Error: No index.html found"**
+    - Create an index.html file in the student's directory
+    - Check file permissions
+
+## Security Notes
+
+-   The script uses self-signed certificates for HTTPS
+-   Chromium is launched with `--ignore-certificate-errors` for local development
+-   Use in a controlled, local environment only
+
+## Contributing
+
+Feel free to submit issues and enhancement requests!
 
 ## License
 
-This script is open-source and may be freely modified and distributed. Attribution to the original author is appreciated.
+This project is licensed under the Apache 2.0 - see the LICENSE file for details.
+
+---
 
 # Contributing
 
@@ -340,7 +397,7 @@ git push origin feature-or-bugfix-branch
 
 #### Code Style
 
-I try my best to follow the styles enforced by the [Black](https://black.readthedocs.io/en/stable/) code formatter [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black).  Please do your best to follow our coding style guidelines to maintain consistency across the project.
+I try my best to follow the styles enforced by the [Black](https://black.readthedocs.io/en/stable/) code formatter [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black). Please do your best to follow our coding style guidelines to maintain consistency across the project.
 
 ### Reporting Issues
 
@@ -348,8 +405,8 @@ If you encounter any issues or have suggestions, please [open an issue on GitHub
 
 ### Development Workflow
 
-- Before starting to work on an issue, make sure it's not already assigned or being worked on.
-- If you plan major changes, it's a good idea to open an issue for discussion first.
+-   Before starting to work on an issue, make sure it's not already assigned or being worked on.
+-   If you plan major changes, it's a good idea to open an issue for discussion first.
 
 ### Code of Conduct
 
