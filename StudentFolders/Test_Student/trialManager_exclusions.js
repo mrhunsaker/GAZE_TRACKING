@@ -1,5 +1,6 @@
 // Export the TrialManager class
 import { objectExclusions } from './objectExclusions.js';
+
 export class TrialManager {
     constructor() {
         this.testContainer = document.getElementById("test-container");
@@ -21,6 +22,7 @@ export class TrialManager {
         this.userInitials = '';
         this.setupImages();
     }
+
     showInitialsDialog() {
         return new Promise((resolve) => {
             const dialog = document.createElement('div');
