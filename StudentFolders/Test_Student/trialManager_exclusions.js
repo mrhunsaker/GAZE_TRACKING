@@ -5,7 +5,7 @@ export class TrialManager {
         this.testContainer = document.getElementById("test-container");
         this.instructionElement = document.getElementById("instruction");
         this.trialTypes = ["1", "2"];
-        this.totalTrials = 40;
+        this.trialCount = null;
         this.currentTrial = 0;
         this.currentTrialData = {};
         this.trialData = [];
@@ -18,9 +18,58 @@ export class TrialManager {
         this.allGazeData = []; // Store all gaze data across trials
         this.objectExclusions = {};
         this.objectExclusions = objectExclusions;
-        // Initialize image objects
+        this.userInitials = '';
         this.setupImages();
     }
+    showInitialsDialog() {
+        return new Promise((resolve) => {
+            const dialog = document.createElement('div');
+            dialog.innerHTML = `
+            <div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            background: white; padding: 20px; border-radius: 5px; z-index: 2000; color: black; font-family: Arial, sans-serif;">
+            <h3 style="margin: 0 0 10px;">Enter Participant Initials</h3>
+            <input type="text" id="initials-input" maxlength="4"
+            style="margin: 10px 0; width: 100%; padding: 5px; color: black; border: 1px solid #ccc;">
+            <h3 style="margin: 10px 0;">Select Number of Trials</h3>
+            <select id="trial-count"
+            style="margin: 10px 0; width: 100%; padding: 5px; color: black; border: 1px solid #ccc;">
+            <option value="10">10</option>
+            <option value="20">20</option>
+            <option value="30">30</option>
+            <option value="40">40</option>
+            <option cvalue="50">50</option>
+            </select>
+            <button id="initials-submit"
+            style="margin-top: 10px; width: 100%; padding: 10px; background: #007BFF; color: white; border: none; border-radius: 5px; cursor: pointer;">
+            Start
+            </button>
+            </div>
+            <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); z-index: 1999;"></div>
+            `;
+            document.body.appendChild(dialog);
+
+            const input = dialog.querySelector('#initials-input');
+            const trialSelect = dialog.querySelector('#trial-count');
+            const button = dialog.querySelector('#initials-submit');
+
+            button.onclick = () => {
+                const initials = input.value.trim().toUpperCase();
+                const trialCount = parseInt(trialSelect.value, 10);
+
+                if (!initials) {
+                    alert('Please enter valid initials.');
+                    return;
+                }
+
+                this.userInitials = initials || 'TEST';
+                this.trialCount = trialCount;
+                dialog.remove();
+                resolve();
+            };
+        });
+    }
+
 
     getRandomObjectNumber(exclude) {
         let objectNum;
@@ -33,8 +82,6 @@ export class TrialManager {
     getExcludedObjects(objectNum) {
         return this.objectExclusions[objectNum] || [];
     }
-
-
 
     processGazeData(gazePoint, trialStartTime) {
         const gazeData = {
@@ -54,6 +101,7 @@ export class TrialManager {
             console.log("Calibration already in progress or completed");
             return;
         }
+        await this.showInitialsDialog();
         this.calibrationInProgress = true;
 
         try {
@@ -178,9 +226,8 @@ export class TrialManager {
 
     // Generate custom filename with initials and timestamp
     generateFileName() {
-        const initials = "TEST"; // Change this to participant's initials
         const timestamp = new Date().toISOString().replace(/[:\.]/g, "-");
-        return `${initials}_${timestamp}_data.json`;
+        return `${this.userInitials}_${timestamp}_data.json`;
     }
 
     shuffleArray(array) {
@@ -498,7 +545,7 @@ export class TrialManager {
         console.log("Starting experiment...");
         this.hide(this.instructionElement);
 
-        for (let i = 0; i < this.totalTrials; i++) {
+        for (let i = 0; i < this.trialCount; i++) {
             await this.runTrial(
                 this.trialTypes[i % this.trialTypes.length]
             );
@@ -510,7 +557,7 @@ export class TrialManager {
                 trialData: this.trialData,
                 gazeData: this.allGazeData, // Complete gaze data record
                 timestamp: Date.now(),
-                totalTrials: this.totalTrials
+                totalTrials: this.trialCount
             };
 
             // Save using localforage
