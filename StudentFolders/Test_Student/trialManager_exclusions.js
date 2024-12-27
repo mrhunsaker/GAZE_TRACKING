@@ -1,8 +1,8 @@
 // Export the TrialManager class
-import { objectExclusions_Shapes } from './objectExclusions.js';
-import { objectExclusions_Abstract } from './objectExclusions.js';
-import { objectExclusions_Colors } from './objectExclusions.js';
-import { objectExclusions_Pictures } from './objectExclusions.js'; // not available yet, still only has colors i the folder
+import {objectExclusions_Shapes} from './objectExclusions.js';
+import {objectExclusions_Abstract} from './objectExclusions.js';
+import {objectExclusions_Colors} from './objectExclusions.js';
+import {objectExclusions_Pictures} from './objectExclusions.js'; // not available yet, still only has colors in the folder
 
 // Export the initialization code as a function
 export function initializeExperiment() {
@@ -62,19 +62,19 @@ export class TrialManager {
             // Import exclusions based on selected test type
             switch (this.testType.toLowerCase()) {
                 case 'Shapes':
-                    const { objectExclusions_Shapes } = await import('./objectExclusions.js');
+                    const {objectExclusions_Shapes} = await import('./objectExclusions.js');
                     this.objectExclusions_Shapes = objectExclusions_Shapes;
                     break;
                 case 'Colors':
-                    const { objectExclusions_Colors } = await import('./objectExclusions.js');
+                    const {objectExclusions_Colors} = await import('./objectExclusions.js');
                     this.objectExclusions_Colors = objectExclusions_Colors;
                     break;
                 case 'Abstract':
-                    const { objectExclusions_Abstract } = await import('./objectExclusions.js');
+                    const {objectExclusions_Abstract} = await import('./objectExclusions.js');
                     this.objectExclusions_Abstract = objectExclusions_Abstract;
                     break;
                 case 'Pictures':
-                    const { objectExclusions_Pictures } = await import('./objectExclusions.js');
+                    const {objectExclusions_Pictures} = await import('./objectExclusions.js');
                     this.objectExclusions_Abstract = objectExclusions_Abstract;
                     break;
                 default:
@@ -159,7 +159,7 @@ export class TrialManager {
 
     getRandomObjectNumber(exclude) {
         const validObjects = Array.from(
-            { length: this.totalImages },
+            {length: this.totalImages},
             (_, i) => i + 1
         ).filter(num => !exclude.includes(num));
 
@@ -223,7 +223,6 @@ export class TrialManager {
 
         return exclusions[objectNum].filter(num => num <= this.totalImages);
     }
-
 
 
     processGazeData(gazePoint, trialStartTime) {
@@ -311,7 +310,7 @@ export class TrialManager {
                     createCalibrationPoint();
                 };
 
-                point.addEventListener("click", clickHandler, { once: true });
+                point.addEventListener("click", clickHandler, {once: true});
                 calibrationContainer.appendChild(point);
             };
 
@@ -562,9 +561,9 @@ export class TrialManager {
                 // Get a non-excluded object
                 const object2Num = this.getRandomObjectNumber(excludeList);
                 testObjects = [
-                    { num: object1Num, isTarget: true },
-                    { num: object2Num, isTarget: false },
-                    { num: object2Num, isTarget: false }
+                    {num: object1Num, isTarget: true},
+                    {num: object2Num, isTarget: false},
+                    {num: object2Num, isTarget: false}
                 ];
             } else {
                 // Get two different non-excluded objects
@@ -573,9 +572,9 @@ export class TrialManager {
                 const object3Num = this.getRandomObjectNumber(newExcludeList);
 
                 testObjects = [
-                    { num: object1Num, isTarget: true },
-                    { num: object2Num, isTarget: false },
-                    { num: object3Num, isTarget: false }
+                    {num: object1Num, isTarget: true},
+                    {num: object2Num, isTarget: false},
+                    {num: object3Num, isTarget: false}
                 ];
             }
 
