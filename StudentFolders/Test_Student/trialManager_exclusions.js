@@ -1,5 +1,36 @@
 // Export the TrialManager class
-import { objectExclusions } from './objectExclusions.js';
+import { objectExclusions_Shapes } from './objectExclusions.js';
+import { objectExclusions_Abstract } from './objectExclusions.js';
+import { objectExclusions_Colors } from './objectExclusions.js';
+import { objectExclusions_Pictures } from './objectExclusions.js'; // not available yet, still only has colors i the folder
+
+// Export the initialization code as a function
+export function initializeExperiment() {
+    const trialManager = new TrialManager();
+    let experimentInitiated = false;
+
+    document.addEventListener("keydown", async (e) => {
+        if (experimentInitiated) return;
+
+        experimentInitiated = true;
+        try {
+            // 1. First show the dialog and get user input
+            await trialManager.showInitialsDialog();
+
+            // 2. Then setup images and initialize WebGazer
+            await Promise.all([
+                trialManager.setupImages(),
+                trialManager.initWebGazer()
+            ]);
+
+            // 3. Start calibration phase without showing dialog again
+            await trialManager.startCalibrationPhase();
+        } catch (err) {
+            console.error(`Initialization error:`, err);
+            experimentInitiated = false;
+        }
+    });
+}
 
 export class TrialManager {
     constructor() {
@@ -17,47 +48,94 @@ export class TrialManager {
         this.CALIBRATION_POINTS = 10; // Number of calibration points
         this.currentGazeData = []; // Store gaze data for current trial
         this.allGazeData = []; // Store all gaze data across trials
-        this.objectExclusions = {};
-        this.objectExclusions = objectExclusions;
+        //this.objectExclusions = {};
+        //this.objectExclusions = objectExclusions;
         this.userInitials = '';
-        this.setupImages();
+        this.objectExclusions_Shapes = {};
+        this.objectExclusions_Colors = {};
+        this.objectExclusions_Abstract = {};
+
     }
+
+    async initializeExclusions() {
+        try {
+            // Import exclusions based on selected test type
+            switch (this.testType.toLowerCase()) {
+                case 'Shapes':
+                    const { objectExclusions_Shapes } = await import('./objectExclusions.js');
+                    this.objectExclusions_Shapes = objectExclusions_Shapes;
+                    break;
+                case 'Colors':
+                    const { objectExclusions_Colors } = await import('./objectExclusions.js');
+                    this.objectExclusions_Colors = objectExclusions_Colors;
+                    break;
+                case 'Abstract':
+                    const { objectExclusions_Abstract } = await import('./objectExclusions.js');
+                    this.objectExclusions_Abstract = objectExclusions_Abstract;
+                    break;
+                case 'Pictures':
+                    const { objectExclusions_Pictures } = await import('./objectExclusions.js');
+                    this.objectExclusions_Abstract = objectExclusions_Abstract;
+                    break;
+                default:
+                    console.warn('Unknown test type:', this.testType);
+            }
+        } catch (error) {
+            console.error('Error loading exclusions:', error);
+            // Initialize with empty object if loading fails
+            this[`objectExclusions_${this.testType}`] = {};
+        }
+    }
+
 
     showInitialsDialog() {
         return new Promise((resolve) => {
             const dialog = document.createElement('div');
             dialog.innerHTML = `
-            <div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            background: white; padding: 20px; border-radius: 5px; z-index: 2000; color: black; font-family: Arial, sans-serif;">
-            <h3 style="margin: 0 0 10px;">Enter Participant Initials</h3>
-            <input type="text" id="initials-input" maxlength="4"
-            style="margin: 10px 0; width: 100%; padding: 5px; color: black; border: 1px solid #ccc;">
-            <h3 style="margin: 10px 0;">Select Number of Trials</h3>
-            <select id="trial-count"
-            style="margin: 10px 0; width: 100%; padding: 5px; color: black; border: 1px solid #ccc;">
-            <option value="10">10</option>
-            <option value="20">20</option>
-            <option value="30">30</option>
-            <option value="40">40</option>
-            <option cvalue="50">50</option>
-            </select>
-            <button id="initials-submit"
-            style="margin-top: 10px; width: 100%; padding: 10px; background: #007BFF; color: white; border: none; border-radius: 5px; cursor: pointer;">
-            Start
-            </button>
-            </div>
-            <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.5); z-index: 1999;"></div>
-            `;
-            document.body.appendChild(dialog);
+                <div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+                    width: 600px; height: 800px; background: white; padding: 20px; border-radius: 5px; z-index: 2000; color: black; font-family: Arial, sans-serif;">
+                    <h3 style="margin: 0 0 10px;">Enter Participant Initials</h3>
+                    <input type="text" id="initials-input" maxlength="6"
+                        style="margin: 10px 0; width: 100%; padding: 5px; color: black; border: 1px solid #ccc;">
+                    
+                    <h3 style="margin: 10px 0;">Select Test Type</h3>
+                    <select id="test-type"
+                        style="margin: 10px 0; width: 100%; padding: 5px; color: black; border: 1px solid #ccc;">
+                        <option value="Shapes">Shapes</option>
+                        <option value="Colors">Colors</option>
+                        <option value="Abstract">Abstract</option>     
+                        <option value="Pictures">Pictures</option>     
+                    </select>
+    
+                    <h3 style="margin: 10px 0;">Select Number of Trials</h3>
+                    <select id="trial-count"
+                        style="margin: 10px 0; width: 100%; padding: 5px; color: black; border: 1px solid #ccc;">
+                        <option value="10">10</option>
+                        <option value="20">20</option>
+                        <option value="30">30</option>
+                        <option value="40">40</option>
+                        <option value="50">50</option>
+                    </select>
 
+                    <button id="initials-submit"
+                        style="margin-top: 10px; width: 100%; padding: 10px; background: #007BFF; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                        Start
+                    </button>
+                </div>
+                <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+                    background: rgba(0,0,0,0.5); z-index: 1999;"></div>
+            `;
+
+            document.body.appendChild(dialog);
             const input = dialog.querySelector('#initials-input');
             const trialSelect = dialog.querySelector('#trial-count');
+            const testTypeSelect = dialog.querySelector('#test-type');
             const button = dialog.querySelector('#initials-submit');
 
-            button.onclick = () => {
+            button.onclick = async () => {
                 const initials = input.value.trim().toUpperCase();
                 const trialCount = parseInt(trialSelect.value, 10);
+                this.testType = testTypeSelect.value;
 
                 if (!initials) {
                     alert('Please enter valid initials.');
@@ -66,6 +144,12 @@ export class TrialManager {
 
                 this.userInitials = initials || 'TEST';
                 this.trialCount = trialCount;
+
+                // Initialize exclusions after setting test type
+                await this.initializeExclusions();
+                // Then setup images
+                await this.setupImages();
+
                 dialog.remove();
                 resolve();
             };
@@ -74,16 +158,73 @@ export class TrialManager {
 
 
     getRandomObjectNumber(exclude) {
-        let objectNum;
-        do {
-            objectNum = Math.floor(Math.random() * 403) + 1;
-        } while (exclude.includes(objectNum));
-        return objectNum;
+        const validObjects = Array.from(
+            { length: this.totalImages },
+            (_, i) => i + 1
+        ).filter(num => !exclude.includes(num));
+
+        if (validObjects.length === 0) {
+            console.error('No valid objects available');
+            return Math.floor(Math.random() * this.totalImages) + 1;
+        }
+
+        const randomIndex = Math.floor(Math.random() * validObjects.length);
+        return validObjects[randomIndex];
     }
 
     getExcludedObjects(objectNum) {
-        return this.objectExclusions[objectNum] || [];
+        const exclusionsKey = `objectExclusions_${this.testType}`;
+        const exclusions = this[exclusionsKey];
+
+        console.log('Getting exclusions for', objectNum, 'from', exclusionsKey);
+        console.log('Exclusions object:', exclusions);
+
+        if (!exclusions || !exclusions[objectNum]) {
+            console.log('No exclusions found');
+            return [];
+        }
+
+        const filteredExclusions = exclusions[objectNum].filter(num => num <= this.totalImages);
+        console.log('Filtered exclusions:', filteredExclusions);
+        return filteredExclusions;
     }
+
+
+    async initializeExclusions() {
+        try {
+            const module = await import('./objectExclusions.js');
+
+            switch (this.testType) {
+                case 'Shapes':
+                    this.objectExclusions_Shapes = module.objectExclusions_Shapes;
+                    break;
+                case 'Colors':
+                    this.objectExclusions_Colors = module.objectExclusions_Colors;
+                    break;
+                case 'Abstract':
+                    this.objectExclusions_Abstract = module.objectExclusions_Abstract;
+                    break;
+                default:
+                    console.warn('Unknown test type:', this.testType);
+            }
+        } catch (error) {
+            console.error('Error loading exclusions:', error);
+            this[`objectExclusions_${this.testType}`] = {};
+        }
+    }
+
+    getExcludedObjects(objectNum) {
+        const exclusionsKey = `objectExclusions_${this.testType}`;
+        const exclusions = this[exclusionsKey];
+
+        if (!exclusions || !exclusions[objectNum]) {
+            return [];
+        }
+
+        return exclusions[objectNum].filter(num => num <= this.totalImages);
+    }
+
+
 
     processGazeData(gazePoint, trialStartTime) {
         const gazeData = {
@@ -95,6 +236,7 @@ export class TrialManager {
         };
         this.currentGazeData.push(gazeData);
         this.allGazeData.push(gazeData);
+        console.log('Gaze Data Collected:', gazeData);
     }
 
     // Add the following methods to the TrialManager class
@@ -103,12 +245,9 @@ export class TrialManager {
             console.log("Calibration already in progress or completed");
             return;
         }
-        await this.showInitialsDialog();
         this.calibrationInProgress = true;
 
         try {
-            await this.initWebGazer();
-            // Display calibration container
             const calibrationContainer = document.createElement("div");
             calibrationContainer.id = "calibration-container";
             Object.assign(calibrationContainer.style, {
@@ -240,19 +379,56 @@ export class TrialManager {
         return array;
     }
 
-    setupImages() {
-        // Preload images for all 403 objects
-        this.objectImages = {};
-        for (let i = 1; i <= 403; i++) {
-            const img = new Image();
-            img.src = `models/object${i.toString().padStart(3, "0")}.png`;
-            this.objectImages[i] = img;
+    async setupImages() {
+        console.log(`Setting up images for test type: ${this.testType}`);
+
+        const loadingMsg = document.createElement('div');
+        // ... (keep existing loading message setup)
+
+        try {
+            // Determine correct total images based on test type
+            const imageCounts = {
+                'Abstract': 403,
+                'Shapes': 193,
+                'Colors': 10,
+                'Pictures': 10
+            };
+
+            this.totalImages = imageCounts[this.testType];
+            if (!this.totalImages) {
+                throw new Error(`Unknown test type: ${this.testType}`);
+            }
+
+            // Clear existing images
+            this.objectImages = {};
+            const imagePromises = [];
+
+            // Only load up to totalImages
+            for (let i = 1; i <= this.totalImages; i++) {
+                const img = new Image();
+                const promise = new Promise((resolve, reject) => {
+                    img.onload = () => resolve();
+                    img.onerror = () => reject(new Error(`Failed to load image ${i}`));
+                });
+
+                img.src = `${this.testType}/object${i.toString().padStart(3, "0")}.png`;
+                this.objectImages[i] = img;
+                imagePromises.push(promise);
+            }
+
+            await Promise.all(imagePromises);
+        } catch (error) {
+            console.error('Error loading images:', error);
+            throw error;
+        } finally {
+            loadingMsg.remove();
         }
     }
 
+
     createImage(objectNum) {
         const img = document.createElement("img");
-        img.src = `models/object${objectNum.toString().padStart(3, "0")}.png`;
+        img.src = `${this.testType}/object${objectNum.toString().padStart(3, "0")}.png`;
         img.className = "object";
         return img;
     }
@@ -313,98 +489,121 @@ export class TrialManager {
             }
         }
     }
+
     getRandomObjectNumber(exclude) {
+        // Log the exclusion list for debugging
+        console.log('Exclude list:', exclude);
+
+        const maxAttempts = 100;
+        let attempts = 0;
         let objectNum;
+
         do {
-            objectNum = Math.floor(Math.random() * 403) + 1;
+            objectNum = Math.floor(Math.random() * this.totalImages) + 1;
+            attempts++;
+
+            if (attempts > maxAttempts) {
+                console.warn('Max attempts reached while finding random object');
+                break;
+            }
+
+            // Log each attempt
+            console.log(`Attempt ${attempts}: trying object ${objectNum}`);
         } while (exclude.includes(objectNum));
+
+        console.log('Selected object:', objectNum);
         return objectNum;
     }
 
     getExcludedObjects(objectNum) {
-        return this.objectExclusions[objectNum] || [];
+        const exclusionsKey = `objectExclusions_${this.testType}`;
+        const exclusions = this[exclusionsKey];
+
+        if (!exclusions || !exclusions[objectNum]) {
+            return [];
+        }
+
+        // Ensure returned exclusions are within valid range
+        return exclusions[objectNum].filter(num => num <= this.totalImages);
     }
 
     async runTrial(trialType) {
-        this.currentGazeData = [];
-        this.gazeData = [];
-        const startTime = Date.now();
-        // Choose a random object to be object1 for this trial
-        const object1Num = Math.floor(Math.random() * 403) + 1;
-        const excludeList = [...(this.getExcludedObjects(object1Num)), object1Num];
+        try {
+            this.currentGazeData = [];
+            this.gazeData = [];
+            const startTime = Date.now();
 
-        this.currentTrialData = {
-            trialNumber: this.currentTrial + 1,
-            type: trialType,
-            startTime: startTime,
-            object1: Math.floor(Math.random() * 403) + 1,
-            testObjects: [],
-            positions: [],
-            gazeData: [], // Will be populated at end of trial
-        };
+            // Choose first object
+            const object1Num = Math.floor(Math.random() * this.totalImages) + 1;
+            const exclusionList = this.getExcludedObjects(object1Num);
+            const excludeList = [...exclusionList, object1Num];
 
-        // Show object1 in center first
-        const sampleObject = this.createImage(object1Num);
-        this.showCentered(sampleObject);
-        await new Promise((resolve) => setTimeout(resolve, 3000));
-        sampleObject.remove();
+            this.currentTrialData = {
+                trialNumber: this.currentTrial + 1,
+                type: trialType,
+                startTime: startTime,
+                object1: object1Num,
+                testObjects: [],
+                positions: [],
+                gazeData: [],
+            };
 
-        // Black screen pause
-        await this.showBlackScreen(2000);
+            // Show first object
+            const sampleObject = this.createImage(object1Num);
+            this.showCentered(sampleObject);
+            await new Promise((resolve) => setTimeout(resolve, 3000));
+            sampleObject.remove();
 
-        // Create test phase objects based on trial type
-        let testObjects = [];
-        if (trialType === 1) {
-            // Trial type 1: object1 and two copies of another random object
-            const object2Num = this.getRandomObjectNumber(excludeList);
-            testObjects = [
-                { num: object1Num, isTarget: true },
-                { num: object2Num, isTarget: false },
-                { num: object2Num, isTarget: false }
-            ];
-        } else {
-            // Trial type 2: object1 and two different objects
-            const object2Num = this.getRandomObjectNumber(excludeList);
-            const object3Num = this.getRandomObjectNumber([...excludeList, object2Num]);
-            testObjects = [
-                { num: object1Num, isTarget: true },
-                { num: object2Num, isTarget: false },
-                { num: object3Num, isTarget: false }
-            ];
-        }
+            await this.showBlackScreen(2000);
 
-        // Randomize positions
-        this.shuffleArray(testObjects);
+            // Create test phase objects
+            let testObjects = [];
+            if (trialType === 1) {
+                // Get a non-excluded object
+                const object2Num = this.getRandomObjectNumber(excludeList);
+                testObjects = [
+                    { num: object1Num, isTarget: true },
+                    { num: object2Num, isTarget: false },
+                    { num: object2Num, isTarget: false }
+                ];
+            } else {
+                // Get two different non-excluded objects
+                const object2Num = this.getRandomObjectNumber(excludeList);
+                const newExcludeList = [...excludeList, object2Num];
+                const object3Num = this.getRandomObjectNumber(newExcludeList);
 
-        // Record object positions for data
-        this.currentTrialData.testObjects = testObjects.map(obj => obj.num);
-        this.currentTrialData.positions = testObjects.map((obj, index) => {
-            let position;
-            if (index === 0) position = "left";
-            else if (index === 1) position = "center";
-            else position = "right";
+                testObjects = [
+                    { num: object1Num, isTarget: true },
+                    { num: object2Num, isTarget: false },
+                    { num: object3Num, isTarget: false }
+                ];
+            }
 
-            return {
-                position,
+            // Randomize positions and continue with trial
+            this.shuffleArray(testObjects);
+
+            this.currentTrialData.testObjects = testObjects.map(obj => obj.num);
+            this.currentTrialData.positions = testObjects.map((obj, index) => ({
+                position: ['left', 'center', 'right'][index],
                 objectNum: obj.num,
                 isTarget: obj.isTarget,
-            };
-        });
+            }));
 
-        // Create and position the images
-        const imageElements = testObjects.map((obj) => this.createImage(obj.num));
-        this.positionTestObjects(imageElements);
+            const imageElements = testObjects.map((obj) => this.createImage(obj.num));
+            this.positionTestObjects(imageElements);
 
-        // Show images for 10 seconds
-        await new Promise((resolve) => setTimeout(resolve, 10000));
+            await new Promise((resolve) => setTimeout(resolve, 10000));
 
-        // Clean up
-        imageElements.forEach((img) => img.remove());
-        this.currentTrialData.endTime = Date.now();
-        this.currentTrialData.gazeData = this.currentGazeData;
-        this.trialData.push(this.currentTrialData);
+            imageElements.forEach((img) => img.remove());
+            this.currentTrialData.endTime = Date.now();
+            this.currentTrialData.gazeData = this.currentGazeData;
+            this.trialData.push(this.currentTrialData);
 
-        this.currentTrial++;
+            this.currentTrial++;
+        } catch (error) {
+            console.error('Error in runTrial:', error);
+            throw error;
+        }
     }
 
     async runTrainingTrial(sampleObjectNum) {
@@ -586,21 +785,4 @@ export class TrialManager {
     }
 }
 
-// Export the initialization code as a function
-export function initializeExperiment() {
-    const trialManager = new TrialManager();
-    let experimentInitiated = false;
 
-    document.addEventListener("keydown", async (e) => {
-        if (experimentInitiated) return;
-
-        experimentInitiated = true;
-        try {
-            await navigator.mediaDevices.getUserMedia({ video: true });
-            await trialManager.startCalibrationPhase();
-        } catch (err) {
-            console.error(`Initialization error:`, err);
-            experimentInitiated = false;
-        }
-    });
-}
