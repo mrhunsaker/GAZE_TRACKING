@@ -5,7 +5,7 @@
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
-# You 2024-12-24tain a copy of the License at
+# You can obtain a copy of the License at
 #
 # https://www.apache.org/licenses/LICENS
 #
@@ -30,21 +30,16 @@ BLUE='\033[34m'         # Blue
 
 # Predefined student list
 declare -a STUDENTS=(
-    "AmRi"
-    "AsNe"
-    "PaSa"
-    "RaBa"
-    "TJGu"
-    "Test_Student"
+    "2025_Students"
 )
 
 # Function to clear screen and display header
 display_header() {
     clear
     echo
-    echo -e "${CYAN}══════════════════════════════${NC}"
+    echo -e "${CYAN}══════════════════════════════════════${NC}"
     echo -e "${YELLOW}${BOLD}Student Page Launch Interface${NC}"
-    echo -e "${CYAN}══════════════════════════════${NC}"
+    echo -e "${CYAN}══════════════════════════════════════${NC}"
     echo
 }
 
@@ -53,13 +48,13 @@ display_student_menu() {
     echo
     echo -e "${YELLOW}${BOLD}Available Students:${NC}"
     echo
-    echo -e "${PURPLE}══════════════════════════════${NC}"
+    echo -e "${PURPLE}══════════════════════════════════════${NC}"
     echo
     for i in "${!STUDENTS[@]}"; do
         echo -e "  ${ORANGE}$((i+1))${NC}. ${WHITE}${STUDENTS[$i]}${NC}"
     done
     echo
-    echo -e "${PURPLE}══════════════════════════════${NC}"
+    echo -e "${PURPLE}══════════════════════════════════════${NC}"
     echo
 }
 
@@ -104,8 +99,8 @@ check_requirements() {
 
     # Check chromium (supports multiple possible binary names)
     if ! command -v chromium &> /dev/null && ! command -v google-chrome &> /dev/null; then
-        echo -e "\n${ORANGE}Error: Chromium is not installed.${NC}"
-        echo -e "${WHITE}Please install Chromium using your system's package manager${NC}"
+        echo -e "\n${ORANGE}Error: Chrome is not installed.${NC}"
+        echo -e "${WHITE}Please install Chrome using your system's package manager${NC}"
         exit 1
     fi
 }
@@ -115,9 +110,9 @@ launch_browser() {
     local url=$1
     local browser_cmd
 
-    # Determine which chromium command is available
-    if command -v chromium &> /dev/null; then
-        browser_cmd="chromium"
+    # Determine which Chrome command is available
+    if command -v chrome &> /dev/null; then
+        browser_cmd="chrome"
     else
         browser_cmd="google-chrome"
     fi
