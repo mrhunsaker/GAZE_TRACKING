@@ -33,7 +33,8 @@ export function initializeExperiment() {
 
             /** 3. Start calibration phase without showing dialog again **/
             await trialManager.startCalibrationPhase();
-        } catch (err) {
+        }
+        catch (err) {
             console.error(`Initialization error:`, err);
             experimentInitiated = false;
         }
@@ -45,7 +46,7 @@ export function initializeExperiment() {
  */
 export class TrialManager {
     constructor() {
-        this.testContainer = document.getElementById("test-container");
+        this.testContainer = document.getElementById("test-container"); //
         this.instructionElement = document.getElementById("instruction");
         this.trialTypes = ["1", "2"];
         this.trialCount = null;
@@ -99,7 +100,8 @@ export class TrialManager {
                 default:
                     console.warn('Unknown test type:', this.testType);
             }
-        } catch (error) {
+        }
+        catch (error) {
             console.error('Error loading exclusions:', error);
             // Initialize with empty object if loading fails
             this[`objectExclusions_${this.testType}`] = {};
@@ -251,7 +253,8 @@ export class TrialManager {
                 default:
                     console.warn('Unknown test type:', this.testType);
             }
-        } catch (error) {
+        }
+        catch (error) {
             console.error('Error loading exclusions:', error);
             this[`objectExclusions_${this.testType}`] = {};
         }
@@ -385,7 +388,8 @@ export class TrialManager {
 
             createCalibrationPoint();
 
-        } catch (err) {
+        }
+        catch (err) {
             console.error("Calibration error:", err);
             this.calibrationInProgress = false;
         }
@@ -526,10 +530,12 @@ export class TrialManager {
             }
 
             await Promise.all(imagePromises);
-        } catch (error) {
+        }
+        catch (error) {
             console.error('Error loading images:', error);
             throw error;
-        } finally {
+        }
+        finally {
             loadingMsg.remove();
         }
     }
@@ -575,8 +581,8 @@ export class TrialManager {
             console.log("WebGazer explicitly resumed.");
 
             // Enable video preview and face overlay visualization
-            webgazer.showVideoPreview(true); //only activate to debug
-            webgazer.showFaceOverlay(false); //only activate to debug
+            webgazer.showVideoPreview(true); // only activate to debug
+            webgazer.showFaceOverlay(false); // only activate to debug
             // Set gaze listener to collect gaze data
             webgazer.setGazeListener((data, elapsedTime) => {
                 if (data && this.currentTrialData.startTime) {
@@ -585,10 +591,7 @@ export class TrialManager {
             });
 
             // Configure WebGazer with comprehensive settings
-            webgazer
-                .setRegression("weightedRidge")
-                .setTracker("TFFacemesh")
-                .showPredictionPoints(false);
+            webgazer.setRegression("weightedRidge").setTracker("TFFacemesh").showPredictionPoints(false);
 
             // Start WebGazer with error handling
             await webgazer.begin().catch(err => {
@@ -596,7 +599,8 @@ export class TrialManager {
             });
 
             console.log("WebGazer initialized successfully with face mesh.");
-        } catch (err) {
+        }
+        catch (err) {
             console.error("Comprehensive WebGazer initialization error:", err);
 
             // Display user-friendly error
@@ -717,7 +721,8 @@ export class TrialManager {
                     {num: object2Num, isTarget: false},
                     {num: object2Num, isTarget: false}
                 ];
-            } else {
+            }
+            else {
                 // Get two different non-excluded objects
                 const object2Num = this.getRandomObjectNumber(excludeList);
                 const newExcludeList = [...excludeList, object2Num];
@@ -751,7 +756,8 @@ export class TrialManager {
             this.trialData.push(this.currentTrialData);
 
             this.currentTrial++;
-        } catch (error) {
+        }
+        catch (error) {
             console.error('Error in runTrial:', error);
             throw error;
         }
@@ -790,9 +796,11 @@ export class TrialManager {
             // Explicitly handle positions based on the index
             if (index === 0) {
                 xPos = -offset; // "left" position
-            } else if (index === 1) {
+            }
+            else if (index === 1) {
                 xPos = 0; // "center" position
-            } else if (index === 2) {
+            }
+            else if (index === 2) {
                 xPos = offset; // "right" position
             }
 
@@ -838,7 +846,8 @@ export class TrialManager {
                 this.createImage(otherObjectNum),
                 this.createImage(otherObjectNum),
             ];
-        } else {
+        }
+        else {
             // Type 2 trial
             const usedObjects = new Set([sampleObjectNum]);
             while (usedObjects.size < 3) {
@@ -876,13 +885,16 @@ export class TrialManager {
             if (index === 0) {
                 obj.style.left = `${containerWidth / 2 - 200}px`;
                 obj.style.top = `${containerHeight / 2 - 200}px`;
-            } else if (index === 1) {
+            }
+            else if (index === 1) {
                 obj.style.left = `${containerWidth / 2 - 200 - offset}px`;
                 obj.style.top = `${containerHeight / 2 - 200}px`;
-            } else if (index === 2) {
+            }
+            else if (index === 2) {
                 obj.style.left = `${containerWidth / 2 - 200 + offset}px`;
                 obj.style.top = `${containerHeight / 2 - 200}px`;
-            } else {
+            }
+            else {
                 obj.style.left = `${containerWidth / 2 - 200 + offset}px`;
                 obj.style.top = `${containerHeight / 2 - 200}px`;
             }
@@ -983,7 +995,8 @@ export class TrialManager {
             downloadAnchorNode.remove();
 
             alert("Experiment completed! Data saved and downloaded to your ~/Documents folder.");
-        } catch (err) {
+        }
+        catch (err) {
             console.error("Error saving data:", err);
             alert("Error saving experiment data. Please check the console.");
         }
